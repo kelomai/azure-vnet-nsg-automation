@@ -50,15 +50,28 @@ function Test-SubnetInVNet {
     $vnetParts = $VNetCIDR.Split('/')
     $subnetParts = $SubnetCIDR.Split('/')
 
-    if ($subnetParts[1] -le $vnetParts[1]) {
+    # Check if the subnet mask is larger (more specific) than VNet mask
+    if ([int]$subnetParts[1] -le [int]$vnetParts[1]) {
         return $false
     }
 
-    # Check if subnet starts with VNet prefix
-    $vnetPrefix = $vnetParts[0].Split('.')[0..2] -join '.'
-    $subnetPrefix = $subnetParts[0].Split('.')[0..2] -join '.'
+    # For /16 VNet (10.0.0.0/16), check first 2 octets match (10.0)
+    # For /24 subnet (10.0.1.0/24), this should be within range
+    $vnetMask = [int]$vnetParts[1]
+    $octetsToCheck = [Math]::Floor($vnetMask / 8)
 
-    return $vnetPrefix -eq $subnetPrefix
+    if ($octetsToCheck -gt 0) {
+        $vnetOctets = $vnetParts[0].Split('.')
+        $subnetOctets = $subnetParts[0].Split('.')
+
+        for ($i = 0; $i -lt $octetsToCheck; $i++) {
+            if ($vnetOctets[$i] -ne $subnetOctets[$i]) {
+                return $false
+            }
+        }
+    }
+
+    return $true
 }
 
 # Validate all subnets

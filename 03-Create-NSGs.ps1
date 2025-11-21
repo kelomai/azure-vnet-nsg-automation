@@ -142,21 +142,15 @@ function Create-NSGRule {
     Write-Host -ForegroundColor Blue "  $emoji Creating rule: $ruleName (Priority: $priority, Direction: $direction, Access: $access)"
 
     try {
-        $sourceAddressPrefix = $sourceAddressPrefixes -join ","
-        $destinationAddressPrefix = $destinationAddressPrefixes -join ","
-        $destinationPortRange = $destinationPortRanges -join ","
+        # Convert arrays to space-separated strings for Azure CLI
+        $srcPrefixes = ($sourceAddressPrefixes | ForEach-Object { "`"$_`"" }) -join " "
+        $dstPrefixes = ($destinationAddressPrefixes | ForEach-Object { "`"$_`"" }) -join " "
+        $dstPorts = ($destinationPortRanges | ForEach-Object { "`"$_`"" }) -join " "
 
-        az network nsg rule create `
-            --resource-group $resourceGroup `
-            --nsg-name $nsgName `
-            --name $ruleName `
-            --priority $priority `
-            --direction $direction `
-            --access $access `
-            --protocol $protocol `
-            --source-address-prefixes $sourceAddressPrefix `
-            --destination-address-prefixes $destinationAddressPrefix `
-            --destination-port-ranges $destinationPortRange | Out-Null
+        # Build and execute the command - quote protocol to prevent glob expansion
+        $command = "az network nsg rule create --resource-group `"$resourceGroup`" --nsg-name `"$nsgName`" --name `"$ruleName`" --priority $priority --direction $direction --access $access --protocol `"$protocol`" --source-address-prefixes $srcPrefixes --destination-address-prefixes $dstPrefixes --destination-port-ranges $dstPorts"
+
+        Invoke-Expression "$command | Out-Null"
 
         Write-Host -ForegroundColor Green "  ✅ Rule '$ruleName' created successfully"
     }
