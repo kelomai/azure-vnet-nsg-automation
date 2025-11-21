@@ -19,17 +19,13 @@ This repository contains PowerShell scripts to automate the creation of:
 
 The scripts deploy a secure multi-tier network architecture:
 
-```
-Internet
-    ↓
-[App Subnet - 10.0.1.0/24]
-    ├─ Inbound: HTTP (80), HTTPS (443)
-    └─ Outbound: PostgreSQL (5432) to Data Subnet
+![Network Architecture Diagram](architecture-diagram.svg)
 
-[Data Subnet - 10.0.2.0/24]
-    ├─ Inbound: PostgreSQL (5432) from App Subnet only
-    └─ Outbound: Denied (all traffic blocked)
-```
+This architecture implements a classic three-tier security model:
+
+1. **Internet Traffic Layer**: Public HTTP/HTTPS traffic enters through controlled entry points
+2. **Application Layer**: App subnet (10.0.1.0/24) accepts web traffic and communicates with the data layer
+3. **Data Layer**: Database subnet (10.0.2.0/24) only accepts connections from the application layer
 
 ### Security Features
 
