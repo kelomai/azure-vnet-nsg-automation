@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Creates and configures Network Security Groups for App and Data subnets.
+    Creates and configures Network Security Groups for App and Data subnets. 🛡️
 
 .DESCRIPTION
     This script creates NSGs with rules to secure App and Data subnets:
@@ -119,7 +119,7 @@ $subnetsConfig = @{
 }
 
 Write-Host -ForegroundColor Cyan "=========================================="
-Write-Host -ForegroundColor Cyan "Azure NSG Creation and Configuration Script"
+Write-Host -ForegroundColor Cyan "🛡️  Azure NSG Creation and Configuration Script"
 Write-Host -ForegroundColor Cyan "=========================================="
 Write-Host ""
 
@@ -138,7 +138,8 @@ function Create-NSGRule {
         [array]$destinationPortRanges
     )
 
-    Write-Host -ForegroundColor Blue "  Creating rule: $ruleName (Priority: $priority, Direction: $direction, Access: $access)"
+    $emoji = if ($access -eq "Allow") { "✅" } else { "🚫" }
+    Write-Host -ForegroundColor Blue "  $emoji Creating rule: $ruleName (Priority: $priority, Direction: $direction, Access: $access)"
 
     try {
         $sourceAddressPrefix = $sourceAddressPrefixes -join ","
@@ -157,10 +158,10 @@ function Create-NSGRule {
             --destination-address-prefixes $destinationAddressPrefix `
             --destination-port-ranges $destinationPortRange | Out-Null
 
-        Write-Host -ForegroundColor Green "  ✓ Rule '$ruleName' created successfully"
+        Write-Host -ForegroundColor Green "  ✅ Rule '$ruleName' created successfully"
     }
     catch {
-        Write-Host -ForegroundColor Red "  ✗ Failed to create rule '$ruleName'. Error: $_"
+        Write-Host -ForegroundColor Red "  ❌ Failed to create rule '$ruleName'. Error: $_"
         throw
     }
 }
@@ -169,18 +170,18 @@ function Create-NSGRule {
 foreach ($subnetName in $subnetsConfig.Keys) {
     $nsgName = "nsg-$vnetName-$subnetName"
 
-    Write-Host -ForegroundColor Blue "Creating NSG: $nsgName in resource group: $nsgResourceGroupName"
+    Write-Host -ForegroundColor Blue "🔐 Creating NSG: $nsgName in resource group: $nsgResourceGroupName"
     az network nsg create --location $vnetLocation --name $nsgName --resource-group $nsgResourceGroupName | Out-Null
-    Write-Host -ForegroundColor Green "✓ NSG '$nsgName' created successfully"
+    Write-Host -ForegroundColor Green "✅ NSG '$nsgName' created successfully"
     Write-Host ""
 
-    Write-Host -ForegroundColor Blue "Associating NSG: $nsgName with subnet: $subnetName"
+    Write-Host -ForegroundColor Blue "🔗 Associating NSG: $nsgName with subnet: $subnetName"
     az network vnet subnet update --name $subnetName --network-security-group $nsgName --resource-group $vnetResourceGroupName --vnet-name $vnetName | Out-Null
-    Write-Host -ForegroundColor Green "✓ NSG associated with subnet successfully"
+    Write-Host -ForegroundColor Green "✅ NSG associated with subnet successfully"
     Write-Host ""
 
     # Create inbound rules
-    Write-Host -ForegroundColor Cyan "Creating Inbound Rules for $nsgName:"
+    Write-Host -ForegroundColor Cyan "⬇️  Creating Inbound Rules for $nsgName" ":"
     foreach ($rule in $subnetsConfig[$subnetName].InboundRules) {
         Create-NSGRule -resourceGroup $nsgResourceGroupName -nsgName $nsgName `
             -ruleName $rule.Name `
@@ -195,7 +196,7 @@ foreach ($subnetName in $subnetsConfig.Keys) {
     Write-Host ""
 
     # Create outbound rules
-    Write-Host -ForegroundColor Cyan "Creating Outbound Rules for $nsgName:"
+    Write-Host -ForegroundColor Cyan "⬆️  Creating Outbound Rules for $nsgName" ":"
     foreach ($rule in $subnetsConfig[$subnetName].OutboundRules) {
         Create-NSGRule -resourceGroup $nsgResourceGroupName -nsgName $nsgName `
             -ruleName $rule.Name `
@@ -211,5 +212,5 @@ foreach ($subnetName in $subnetsConfig.Keys) {
     Write-Host -ForegroundColor Green "=========================================="
 }
 
-Write-Host -ForegroundColor Green "All NSGs created and configured successfully!"
+Write-Host -ForegroundColor Green "🎉 All NSGs created and configured successfully!"
 Write-Host -ForegroundColor Green "=========================================="

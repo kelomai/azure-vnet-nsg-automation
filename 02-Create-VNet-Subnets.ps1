@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Creates Azure Virtual Network with App and Data subnets.
+    Creates Azure Virtual Network with App and Data subnets. 🌐
 
 .DESCRIPTION
     This script creates a Virtual Network (VNet) with two subnets:
@@ -35,7 +35,7 @@ $subnets = @(
 )
 
 Write-Host -ForegroundColor Cyan "=========================================="
-Write-Host -ForegroundColor Cyan "Azure VNet and Subnet Creation Script"
+Write-Host -ForegroundColor Cyan "🌐 Azure VNet and Subnet Creation Script"
 Write-Host -ForegroundColor Cyan "=========================================="
 Write-Host ""
 
@@ -62,55 +62,55 @@ function Test-SubnetInVNet {
 }
 
 # Validate all subnets
-Write-Host -ForegroundColor Blue "Validating subnet address spaces..."
+Write-Host -ForegroundColor Blue "🔍 Validating subnet address spaces..."
 foreach ($subnet in $subnets) {
     if (-not (Test-SubnetInVNet -VNetCIDR $addressSpace -SubnetCIDR $subnet.AddressPrefix)) {
-        Write-Host -ForegroundColor Red "✗ Subnet '$($subnet.Name)' address prefix '$($subnet.AddressPrefix)' is not within VNet address space '$addressSpace'"
+        Write-Host -ForegroundColor Red "❌ Subnet '$($subnet.Name)' address prefix '$($subnet.AddressPrefix)' is not within VNet address space '$addressSpace'"
         exit 1
     }
-    Write-Host -ForegroundColor Green "✓ Subnet '$($subnet.Name)' validated successfully"
+    Write-Host -ForegroundColor Green "✅ Subnet '$($subnet.Name)' validated successfully"
 }
 Write-Host ""
 
 # Create the Virtual Network
 try {
-    Write-Host -ForegroundColor Blue "Creating Virtual Network '$vnetName' in resource group '$resourceGroup'..."
+    Write-Host -ForegroundColor Blue "🏗️  Creating Virtual Network '$vnetName' in resource group '$resourceGroup'..."
     az network vnet create `
         --resource-group $resourceGroup `
         --name $vnetName `
         --location $location `
         --address-prefix $addressSpace | Out-Null
-    Write-Host -ForegroundColor Green "✓ Virtual Network '$vnetName' created successfully."
+    Write-Host -ForegroundColor Green "✅ Virtual Network '$vnetName' created successfully."
     Write-Host ""
 }
 catch {
-    Write-Host -ForegroundColor Red "✗ Failed to create Virtual Network '$vnetName'. Error: $_"
+    Write-Host -ForegroundColor Red "❌ Failed to create Virtual Network '$vnetName'. Error: $_"
     exit 1
 }
 
 # Create each subnet
 foreach ($subnet in $subnets) {
     try {
-        Write-Host -ForegroundColor Blue "Creating subnet '$($subnet.Name)' with address prefix '$($subnet.AddressPrefix)'..."
+        Write-Host -ForegroundColor Blue "🔧 Creating subnet '$($subnet.Name)' with address prefix '$($subnet.AddressPrefix)'..."
         az network vnet subnet create `
             --resource-group $resourceGroup `
             --vnet-name $vnetName `
             --name $subnet.Name `
             --address-prefix $subnet.AddressPrefix | Out-Null
-        Write-Host -ForegroundColor Green "✓ Subnet '$($subnet.Name)' created successfully."
+        Write-Host -ForegroundColor Green "✅ Subnet '$($subnet.Name)' created successfully."
         Write-Host ""
     }
     catch {
-        Write-Host -ForegroundColor Red "✗ Failed to create subnet '$($subnet.Name)'. Error: $_"
+        Write-Host -ForegroundColor Red "❌ Failed to create subnet '$($subnet.Name)'. Error: $_"
         exit 1
     }
 }
 
 Write-Host -ForegroundColor Green "=========================================="
-Write-Host -ForegroundColor Green "VNet and subnets created successfully!"
+Write-Host -ForegroundColor Green "🎉 VNet and subnets created successfully!"
 Write-Host -ForegroundColor Green "=========================================="
 Write-Host ""
-Write-Host -ForegroundColor Cyan "Summary:"
+Write-Host -ForegroundColor Cyan "📊 Summary:"
 Write-Host "  VNet Name: $vnetName"
 Write-Host "  Address Space: $addressSpace"
 Write-Host "  Subnets:"
